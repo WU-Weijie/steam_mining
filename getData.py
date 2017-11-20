@@ -4,6 +4,7 @@ import json
 
 key = "your steam-web-api key"
 
+#ids = "ids" / "id" depending on the method, pls check steam web api before calling the function. 
 def getData(key, userID, interface, method, ids='ids', version="1"):
     url = "https://api.steampowered.com/" + interface + '/' + method + '/v' + version + '/?format=json&key=' + key + '&steam' + ids + '=' + userID
     resp = urllib.request.urlopen(url)
