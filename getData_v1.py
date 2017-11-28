@@ -31,7 +31,7 @@ if __name__ == '__main__':
             and userData['response']['players']['player'][0].get('loccountrycode') != None):
             # get ownedgames and total played time
                 ownedGames = getData(key, userID, "IPlayerService", "GetOwnedGames", "id")
-                if ownedGames['response']['game_count'] >= 5:
+                if ownedGames['response']['game_count'] >= 1:
                     userData = userData['response']['players']['player']
                     userData[0].pop('communityvisibilitystate')
                     userData[0].pop('profilestate')
