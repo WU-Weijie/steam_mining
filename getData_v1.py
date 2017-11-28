@@ -7,24 +7,16 @@ key =
 
 def getData(key, userID, interface, method, ids='ids', version="1"):
     url = "https://api.steampowered.com/" + interface + '/' + method + '/v' + version + '/?format=json&key=' + key + '&steam' + ids + '=' + userID
-    # url = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v1/?format=json&key=DF893D1F606289EEBE946ED629C32819&steamids=76561197960435530,76561198147924133"
     resp = urllib.request.urlopen(url)
     data = json.loads(resp.read().decode('utf-8'))
-    # data = data['response']['games']
-    # data = data['response']['players']
-    # print (data)
-    # return data['response']['players']
     return data
 
 if __name__ == '__main__':
-    # userIDs = ["76561197960435539",
-    #           "76561198262236331",
-    #           "76561198003030375",
-    #             "76561198003030373"]
     userIDHeader = "765611980"
     dataset = []
     i = 0
     u = 0
+    
     #get user data
     while i < 10000:
         # header + 8 random digits
@@ -61,22 +53,5 @@ if __name__ == '__main__':
     toWrite = {'user_games': dataset}
     with open('user_games_2.json', 'w') as f:
         json.dump(toWrite, f)
-    # dataset.append(data['response']['players']['player'])
-
-
-
-
-# response = urllib.request.urlopen('https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?format=json&key=DF893D1F606289EEBE946ED629C32819&steamid=76561198147924133')
-# html = response.read()
-# print (html)
-
-# import urllib.request
-# response = urllib.request.urlopen('http://python.org/')
-# html = response.read()
-# print (html)
-
-
-
-##keep data if communityvisibilitystate == 3 && personastate == 1
 
 
