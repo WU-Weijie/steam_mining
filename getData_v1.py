@@ -2,7 +2,7 @@ import urllib.request
 import json
 import random
 
-key = 
+key = ""
 
 
 def getData(key, userID, interface, method, ids='ids', version="1"):
