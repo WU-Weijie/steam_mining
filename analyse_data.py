@@ -13,12 +13,14 @@ continent = dict().fromkeys(['AF', 'AT', 'AS', 'OC', 'EU', 'NA', 'SA'], 0)
 
 # continent look up table
 continentLT = {'AF': 0, 'AT': 1, 'AS': 2, 'EU': 3, 'OC': 4, 'NA':5, 'SA': 6}
-gamesContinent = []
+gamesContinent = []   # store game count
+gamesContinentPlaytime = []  # store playtime
 countGames = []
 i = 0
 while i < 7:
     i += 1
     gamesContinent.append({})
+    gamesContinentPlaytime.append({})
     countGames.append(0)
 
 
@@ -34,7 +36,6 @@ for i in data:
     i[0].update({'continent': country2continent[i[0]['loccountrycode']]})
 
     # print(i[0])
-
     # reserve 10 most played games
     i[1]['games'] = heapq.nlargest(10, i[1]['games'], key=lambda k:k['playtime_forever'])
     totalPlaytime = 0
@@ -42,17 +43,20 @@ for i in data:
         # add total playtime and continent count
         totalPlaytime += game['playtime_forever']
         countGames[continentLT[i[0]['continent']]] += 1
-        if games.get(game['appid']) != None:
-            # games[game['appid']]['count'] += game['playtime_forever']
-            games[game['appid']]['count'] += 1
-            games[game['appid']][i[0]['continent']] += 1
-        else:
-            games.update({game['appid']: {'count': 0, 'AF': 0, 'AT': 0, 'AS': 0, 'OC': 0, 'EU':0, 'NA':0, 'SA': 0}})
-        # add to continent list
-        if gamesContinent[continentLT[i[0]['continent']]].get(game['appid']) != None:
-            gamesContinent[continentLT[i[0]['continent']]][game['appid']] += 1
-        else:
-            gamesContinent[continentLT[i[0]['continent']]].update({game['appid']: 1})
+
+        if games.get(game['appid']) == None:
+            games.update({game['appid']: {'count': 0, 'AF': 0, 'AT': 0, 'AS': 0, 'OC': 0, 'EU': 0, 'NA': 0, 'SA': 0}})
+        # games[game['appid']]['count'] += game['playtime_forever'] # by play time
+        # games[game['appid']][i[0]['continent']] += game['playtime_forever']# by play time
+        games[game['appid']]['count'] += 1
+        games[game['appid']][i[0]['continent']] += 1
+
+        # add to top games list in each continent
+        if gamesContinent[continentLT[i[0]['continent']]].get(game['appid']) == None:
+            gamesContinent[continentLT[i[0]['continent']]].update({game['appid']: 0})
+            gamesContinentPlaytime[continentLT[i[0]['continent']]].update({game['appid']: 0})
+        gamesContinentPlaytime[continentLT[i[0]['continent']]][game['appid']] += game['playtime_forever']/60 #by playtime hour
+        gamesContinent[continentLT[i[0]['continent']]][game['appid']] += 1
 
 
     i[1].update({'playtime_total': totalPlaytime})
@@ -61,15 +65,26 @@ for i in data:
 print('-----------------------------------------------------------------------')
 print('---------------------top 15 games in each continent----------------------')
 for cont in continentLT:
+    # ranged by possession
     gamesContinent[continentLT[cont]] = dict(sorted(gamesContinent[continentLT[cont]].items(), key=lambda item:item[1], reverse=True))
+    # ranged by total playtime
+    gamesContinentPlaytime[continentLT[cont]] = dict(sorted(gamesContinentPlaytime[continentLT[cont]].items(), key=lambda item:item[1], reverse=True))
     print('-----------' + cont + '-----------')
     j = 0
-    for g in gamesContinent[continentLT[cont]]:
-        if j < 10:
+    for g in gamesContinentPlaytime[continentLT[cont]]:
+    # for g in gamesContinent[continentLT[cont]]:
+        if j < 20:
             j += 1
         else:
             break
-        print(g, str(round(gamesContinent[continentLT[cont]][g] /continent[cont] * 100, 2)) + "%")
+        # print -> gameid, possession-percentage, total playtime, playtime/person(owned game), playtime/person(all)
+        print(g,
+              str(round(gamesContinent[continentLT[cont]][g] /continent[cont] * 100, 2)) + "%, "
+              + str(round(gamesContinentPlaytime[continentLT[cont]][g], 2)) + ", "
+              + str(round(gamesContinentPlaytime[continentLT[cont]][g] / gamesContinent[continentLT[cont]][g], 2)) + ", "
+              + str(round(gamesContinentPlaytime[continentLT[cont]][g] / continent[cont], 2)))
+        # print(gamesContinent[continentLT[cont]][g])
+        # print(g, str(round(gamesContinent[continentLT[cont]][g] /continent[cont] * 100, 2)) + "%, " + str(gamesContinent[continentLT[cont]][g]))
     print('-----------' + cont + '-----------')
     print()
 print('---------------------top 15 games in each continent---------------------')
@@ -93,6 +108,7 @@ for k in continent.keys():
 print('--------------------------continent summaries--------------------------')
 print('-----------------------------------------------------------------------')
 
+
 print()
 print()
 print()
@@ -112,7 +128,8 @@ for id in games:
             if game['count'] == 0:
                 break
             else:
-                print(c + ': ' + str(round(game[c] / game['count'] * 100, 2)) + "%, " + str(game[c]))
+                print(c + ': ' + str(round(game[c] / game['count'] * 100, 2)) + "%, " + str(round(game[c]/continent[c], 2))) #game owned per person
+                # print(c + ': ' + str(round(game[c] / game['count'] * 100, 2)) + "%, " + str(game[c]))
         else:
             print('users count: ' + str(game[c]))
     print('--------------------------')
@@ -123,3 +140,5 @@ for id in games:
 
 print('------------------------------top 15 games-----------------------------')
 print('-----------------------------------------------------------------------')
+
+
