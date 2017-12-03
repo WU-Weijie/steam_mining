@@ -2,7 +2,7 @@
 countriesAF = ['DZ', 'AO', 'SH', 'BJ', 'BW', 'BF', 'BI', 'CM', 'CV', 'CF', 'TD', 'KM', 'CG', 'CD', 'DJ', 'EG',
               'GQ', 'ER', 'ET', 'GA', 'GM', 'GH', 'GN', 'GW', 'CI', 'KE', 'LS', 'LR', 'LY', 'MG', 'MW', 'ML',
               'MR', 'MU', 'YT', 'MA', 'MZ', 'NA', 'NE', 'NG', 'ST', 'RE', 'RW', 'SN', 'SC', 'SL', 'SO', 'ZA',
-              'SS', 'SD', 'SZ', 'TZ', 'TG', 'TN', 'UG', 'ZM', 'ZW', 'AN']
+              'SS', 'SD', 'SZ', 'TZ', 'TG', 'TN', 'UG', 'ZM', 'ZW', 'AN', 'EH']
 
 countriesAT = ['AQ', 'GS', 'HM', 'TF']
 
@@ -12,7 +12,7 @@ countriesAS = ['AF', 'AM', 'AZ', 'BH', 'BD', 'BT', 'BN', 'KH', 'CN', 'CX', 'CC',
               'AE', 'UZ', 'VN', 'YE', 'TP']
 
 countriesOC = ['AS', 'AU', 'NZ', 'CK', 'TL', 'FM', 'FJ', 'PF', 'GU', 'KI', 'MP', 'MH', 'UM', 'NR', 'NC', 'NU',
-              'NF', 'PW', 'PG', 'WS', 'SB', 'TK', 'TO', 'TV', 'VU', 'WF']
+              'NF', 'PW', 'PG', 'WS', 'SB', 'TK', 'TO', 'TV', 'VU', 'WF', 'PN']
 
 
 countriesEU = ['AL', 'AD', 'AT', 'BY', 'BE', 'BA', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FO', 'FI', 'FR', 'DE',
@@ -39,5 +39,5 @@ toAdd = dict().fromkeys(countriesNA, 'NA')
 country2continent.update(toAdd)
 toAdd = dict().fromkeys(countriesSA, 'SA')
 country2continent.update(toAdd)
-# print(country2continent)
+print(country2continent)
 # print(len(country2continent))
