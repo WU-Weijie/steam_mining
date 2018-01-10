@@ -18,7 +18,7 @@ if __name__ == '__main__':
     u = 0
 
     #get user data
-    while i < 30000:
+    while i < 40000:
         # header + 8 random digits
         userID = userIDHeader + str(random.randint(0,99999999)).zfill(8)
         i += 1
@@ -51,5 +51,5 @@ if __name__ == '__main__':
     print(len(dataset))
     # print(dataset)
     toWrite = {'user_games': dataset}
-    with open('user_games_5.json', 'w') as f:
+    with open('user_games_8.json', 'w') as f:
         json.dump(toWrite, f)
