@@ -25,18 +25,20 @@ from sklearn.model_selection import GridSearchCV
 
 from sklearn.preprocessing import MinMaxScaler
 
+from sklearn.decomposition import PCA
+
 # slice dictionary
 from itertools import islice
 import json, heapq
-
+import time
 # mapping list
 # country2continent = {'EH': 'OTHER', 'PN': 'OTHER', 'TF': 'OTHER', 'JE': 'EU', 'TP': 'AS', 'YU': 'EU', 'BL': 'NA', 'AX': 'EU', 'HM': 'OTHER', 'GS': 'OTHER', 'AN': 'OTHER', 'DZ': 'OTHER', 'AO': 'OTHER', 'SH': 'OTHER', 'BJ': 'OTHER', 'BW': 'OTHER', 'BF': 'OTHER', 'BI': 'OTHER', 'CM': 'OTHER', 'CV': 'OTHER', 'CF': 'OTHER', 'TD': 'OTHER', 'KM': 'OTHER', 'CG': 'OTHER', 'CD': 'OTHER', 'DJ': 'OTHER', 'EG': 'OTHER', 'GQ': 'OTHER', 'ER': 'OTHER', 'ET': 'OTHER', 'GA': 'OTHER', 'GM': 'OTHER', 'GH': 'OTHER', 'GN': 'OTHER', 'GW': 'OTHER', 'CI': 'OTHER', 'KE': 'OTHER', 'LS': 'OTHER', 'LR': 'OTHER', 'LY': 'OTHER', 'MG': 'OTHER', 'MW': 'OTHER', 'ML': 'OTHER', 'MR': 'OTHER', 'MU': 'OTHER', 'YT': 'OTHER', 'MA': 'OTHER', 'MZ': 'OTHER', 'NA': 'OTHER', 'NE': 'OTHER', 'NG': 'OTHER', 'ST': 'OTHER', 'RE': 'OTHER', 'RW': 'OTHER', 'SN': 'OTHER', 'SC': 'OTHER', 'SL': 'OTHER', 'SO': 'OTHER', 'ZA': 'OTHER', 'SS': 'OTHER', 'SD': 'OTHER', 'SZ': 'OTHER', 'TZ': 'OTHER', 'TG': 'OTHER', 'TN': 'OTHER', 'UG': 'OTHER', 'ZM': 'OTHER', 'ZW': 'OTHER', 'AQ': 'OTHER', 'AF': 'AS', 'AM': 'AS', 'AZ': 'AS', 'BH': 'AS', 'BD': 'AS', 'BT': 'AS', 'BN': 'AS', 'KH': 'AS', 'CN': 'AS', 'CX': 'AS', 'CC': 'AS', 'IO': 'AS', 'GE': 'AS', 'HK': 'AS', 'IN': 'AS', 'ID': 'AS', 'IR': 'AS', 'IQ': 'AS', 'IL': 'AS', 'JP': 'AS', 'JO': 'AS', 'KZ': 'AS', 'KW': 'AS', 'KG': 'AS', 'LA': 'AS', 'LB': 'AS', 'MO': 'AS', 'MY': 'AS', 'MV': 'AS', 'MN': 'AS', 'MM': 'AS', 'NP': 'AS', 'KP': 'AS', 'OM': 'AS', 'PK': 'AS', 'PS': 'AS', 'PH': 'AS', 'QA': 'AS', 'SA': 'AS', 'SG': 'AS', 'KR': 'AS', 'LK': 'AS', 'SY': 'AS', 'TW': 'AS', 'TJ': 'AS', 'TH': 'AS', 'TR': 'AS', 'TM': 'AS', 'AE': 'AS', 'UZ': 'AS', 'VN': 'AS', 'YE': 'AS', 'AS': 'OTHER', 'AU': 'OTHER', 'NZ': 'OTHER', 'CK': 'OTHER', 'TL': 'OTHER', 'FM': 'OTHER', 'FJ': 'OTHER', 'PF': 'OTHER', 'GU': 'OTHER', 'KI': 'OTHER', 'MP': 'OTHER', 'MH': 'OTHER', 'UM': 'OTHER', 'NR': 'OTHER', 'NC': 'OTHER', 'NU': 'OTHER', 'NF': 'OTHER', 'PW': 'OTHER', 'PG': 'OTHER', 'WS': 'OTHER', 'SB': 'OTHER', 'TK': 'OTHER', 'TO': 'OTHER', 'TV': 'OTHER', 'VU': 'OTHER', 'WF': 'OTHER', 'AL': 'EU', 'AD': 'EU', 'AT': 'EU', 'BY': 'EU', 'BE': 'EU', 'BA': 'EU', 'BG': 'EU', 'HR': 'EU', 'CY': 'EU', 'CZ': 'EU', 'DK': 'EU', 'EE': 'EU', 'FO': 'EU', 'FI': 'EU', 'FR': 'EU', 'DE': 'EU', 'GI': 'EU', 'GR': 'EU', 'HU': 'EU', 'IS': 'EU', 'IE': 'EU', 'IM': 'EU', 'IT': 'EU', 'XK': 'EU', 'LV': 'EU', 'LI': 'EU', 'LT': 'EU', 'LU': 'EU', 'MK': 'EU', 'MT': 'EU', 'MD': 'EU', 'MC': 'EU', 'ME': 'EU', 'NL': 'EU', 'NO': 'EU', 'PL': 'EU', 'PT': 'EU', 'RO': 'EU', 'RU': 'EU', 'SM': 'EU', 'RS': 'EU', 'SK': 'EU', 'SI': 'EU', 'ES': 'EU', 'SE': 'EU', 'CH': 'EU', 'UA': 'EU', 'GB': 'EU', 'VA': 'EU', 'FX': 'EU', 'SJ': 'EU', 'AI': 'NA', 'AG': 'NA', 'AW': 'NA', 'BS': 'NA', 'BB': 'NA', 'BZ': 'NA', 'BM': 'NA', 'BQ': 'NA', 'VG': 'NA', 'CA': 'NA', 'KY': 'NA', 'CR': 'NA', 'CU': 'NA', 'CW': 'NA', 'DM': 'NA', 'DO': 'NA', 'SV': 'NA', 'GL': 'NA', 'GD': 'NA', 'GP': 'NA', 'GT': 'NA', 'HT': 'NA', 'HN': 'NA', 'JM': 'NA', 'MQ': 'NA', 'MX': 'NA', 'PM': 'NA', 'MS': 'NA', 'KN': 'NA', 'NI': 'NA', 'PA': 'NA', 'PR': 'NA', 'SX': 'NA', 'LC': 'NA', 'VC': 'NA', 'TT': 'NA', 'TC': 'NA', 'US': 'NA', 'VI': 'NA', 'AR': 'OTHER', 'BO': 'OTHER', 'BR': 'OTHER', 'CL': 'OTHER', 'CO': 'OTHER', 'EC': 'OTHER', 'FK': 'OTHER', 'GF': 'OTHER', 'GY': 'OTHER', 'PY': 'OTHER', 'PE': 'OTHER', 'SR': 'OTHER', 'UY': 'OTHER', 'VE': 'OTHER'}
-country2continent = {'EH': 'OTHER', 'PN': 'OTHER', 'TF': 'OTHER', 'JE': 'EU', 'TP': 'AS', 'YU': 'EU', 'BL': 'NA', 'AX': 'EU', 'HM': 'OTHER', 'GS': 'OTHER', 'AN': 'OTHER', 'DZ': 'OTHER', 'AO': 'OTHER', 'SH': 'OTHER', 'BJ': 'OTHER', 'BW': 'OTHER', 'BF': 'OTHER', 'BI': 'OTHER', 'CM': 'OTHER', 'CV': 'OTHER', 'CF': 'OTHER', 'TD': 'OTHER', 'KM': 'OTHER', 'CG': 'OTHER', 'CD': 'OTHER', 'DJ': 'OTHER', 'EG': 'OTHER', 'GQ': 'OTHER', 'ER': 'OTHER', 'ET': 'OTHER', 'GA': 'OTHER', 'GM': 'OTHER', 'GH': 'OTHER', 'GN': 'OTHER', 'GW': 'OTHER', 'CI': 'OTHER', 'KE': 'OTHER', 'LS': 'OTHER', 'LR': 'OTHER', 'LY': 'OTHER', 'MG': 'OTHER', 'MW': 'OTHER', 'ML': 'OTHER', 'MR': 'OTHER', 'MU': 'OTHER', 'YT': 'OTHER', 'MA': 'OTHER', 'MZ': 'OTHER', 'NA': 'OTHER', 'NE': 'OTHER', 'NG': 'OTHER', 'ST': 'OTHER', 'RE': 'OTHER', 'RW': 'OTHER', 'SN': 'OTHER', 'SC': 'OTHER', 'SL': 'OTHER', 'SO': 'OTHER', 'ZA': 'OTHER', 'SS': 'OTHER', 'SD': 'OTHER', 'SZ': 'OTHER', 'TZ': 'OTHER', 'TG': 'OTHER', 'TN': 'OTHER', 'UG': 'OTHER', 'ZM': 'OTHER', 'ZW': 'OTHER', 'AQ': 'OTHER', 'AF': 'AS', 'AM': 'AS', 'AZ': 'AS', 'BH': 'AS', 'BD': 'AS', 'BT': 'AS', 'BN': 'AS', 'KH': 'AS', 'CN': 'AS', 'CX': 'AS', 'CC': 'AS', 'IO': 'AS', 'GE': 'AS', 'HK': 'AS', 'IN': 'AS', 'ID': 'AS', 'IR': 'AS', 'IQ': 'AS', 'IL': 'AS', 'JP': 'AS', 'JO': 'AS', 'KZ': 'AS', 'KW': 'AS', 'KG': 'AS', 'LA': 'AS', 'LB': 'AS', 'MO': 'AS', 'MY': 'AS', 'MV': 'AS', 'MN': 'AS', 'MM': 'AS', 'NP': 'AS', 'KP': 'AS', 'OM': 'AS', 'PK': 'AS', 'PS': 'AS', 'PH': 'AS', 'QA': 'AS', 'SA': 'AS', 'SG': 'AS', 'KR': 'AS', 'LK': 'AS', 'SY': 'AS', 'TW': 'AS', 'TJ': 'AS', 'TH': 'AS', 'TR': 'AS', 'TM': 'AS', 'AE': 'AS', 'UZ': 'AS', 'VN': 'AS', 'YE': 'AS', 'AS': 'OTHER', 'AU': 'OTHER', 'NZ': 'OTHER', 'CK': 'OTHER', 'TL': 'OTHER', 'FM': 'OTHER', 'FJ': 'OTHER', 'PF': 'OTHER', 'GU': 'OTHER', 'KI': 'OTHER', 'MP': 'OTHER', 'MH': 'OTHER', 'UM': 'OTHER', 'NR': 'OTHER', 'NC': 'OTHER', 'NU': 'OTHER', 'NF': 'OTHER', 'PW': 'OTHER', 'PG': 'OTHER', 'WS': 'OTHER', 'SB': 'OTHER', 'TK': 'OTHER', 'TO': 'OTHER', 'TV': 'OTHER', 'VU': 'OTHER', 'WF': 'OTHER', 'AL': 'EU', 'AD': 'EU', 'AT': 'EU', 'BY': 'EU', 'BE': 'EU', 'BA': 'EU', 'BG': 'EU', 'HR': 'EU', 'CY': 'EU', 'CZ': 'EU', 'DK': 'EU', 'EE': 'EU', 'FO': 'EU', 'FI': 'EU', 'FR': 'EU', 'DE': 'EU', 'GI': 'EU', 'GR': 'EU', 'HU': 'EU', 'IS': 'EU', 'IE': 'EU', 'IM': 'EU', 'IT': 'EU', 'XK': 'EU', 'LV': 'EU', 'LI': 'EU', 'LT': 'EU', 'LU': 'EU', 'MK': 'EU', 'MT': 'EU', 'MD': 'EU', 'MC': 'EU', 'ME': 'EU', 'NL': 'EU', 'NO': 'EU', 'PL': 'EU', 'PT': 'EU', 'RO': 'EU', 'RU': 'EU', 'SM': 'EU', 'RS': 'EU', 'SK': 'EU', 'SI': 'EU', 'ES': 'EU', 'SE': 'EU', 'CH': 'EU', 'UA': 'EU', 'GB': 'EU', 'VA': 'EU', 'FX': 'EU', 'SJ': 'EU', 'AI': 'NA', 'AG': 'NA', 'AW': 'NA', 'BS': 'NA', 'BB': 'NA', 'BZ': 'NA', 'BM': 'NA', 'BQ': 'NA', 'VG': 'NA', 'CA': 'NA', 'KY': 'NA', 'CR': 'NA', 'CU': 'NA', 'CW': 'NA', 'DM': 'NA', 'DO': 'NA', 'SV': 'NA', 'GL': 'NA', 'GD': 'NA', 'GP': 'NA', 'GT': 'NA', 'HT': 'NA', 'HN': 'NA', 'JM': 'NA', 'MQ': 'NA', 'MX': 'NA', 'PM': 'NA', 'MS': 'NA', 'KN': 'NA', 'NI': 'NA', 'PA': 'NA', 'PR': 'NA', 'SX': 'NA', 'LC': 'NA', 'VC': 'NA', 'TT': 'NA', 'TC': 'NA', 'US': 'NA', 'VI': 'NA', 'AR': 'OTHER', 'BO': 'OTHER', 'BR': 'OTHER', 'CL': 'OTHER', 'CO': 'OTHER', 'EC': 'OTHER', 'FK': 'OTHER', 'GF': 'OTHER', 'GY': 'OTHER', 'PY': 'OTHER', 'PE': 'OTHER', 'SR': 'OTHER', 'UY': 'OTHER', 'VE': 'OTHER'}
+country2continent = {'GG': 'EU', 'BV': 'OTHER','EH': 'OTHER', 'PN': 'OTHER', 'TF': 'OTHER', 'JE': 'EU', 'TP': 'AS', 'YU': 'EU', 'BL': 'NA', 'AX': 'EU', 'HM': 'OTHER', 'GS': 'OTHER', 'AN': 'OTHER', 'DZ': 'OTHER', 'AO': 'OTHER', 'SH': 'OTHER', 'BJ': 'OTHER', 'BW': 'OTHER', 'BF': 'OTHER', 'BI': 'OTHER', 'CM': 'OTHER', 'CV': 'OTHER', 'CF': 'OTHER', 'TD': 'OTHER', 'KM': 'OTHER', 'CG': 'OTHER', 'CD': 'OTHER', 'DJ': 'OTHER', 'EG': 'OTHER', 'GQ': 'OTHER', 'ER': 'OTHER', 'ET': 'OTHER', 'GA': 'OTHER', 'GM': 'OTHER', 'GH': 'OTHER', 'GN': 'OTHER', 'GW': 'OTHER', 'CI': 'OTHER', 'KE': 'OTHER', 'LS': 'OTHER', 'LR': 'OTHER', 'LY': 'OTHER', 'MG': 'OTHER', 'MW': 'OTHER', 'ML': 'OTHER', 'MR': 'OTHER', 'MU': 'OTHER', 'YT': 'OTHER', 'MA': 'OTHER', 'MZ': 'OTHER', 'NA': 'OTHER', 'NE': 'OTHER', 'NG': 'OTHER', 'ST': 'OTHER', 'RE': 'OTHER', 'RW': 'OTHER', 'SN': 'OTHER', 'SC': 'OTHER', 'SL': 'OTHER', 'SO': 'OTHER', 'ZA': 'OTHER', 'SS': 'OTHER', 'SD': 'OTHER', 'SZ': 'OTHER', 'TZ': 'OTHER', 'TG': 'OTHER', 'TN': 'OTHER', 'UG': 'OTHER', 'ZM': 'OTHER', 'ZW': 'OTHER', 'AQ': 'OTHER', 'AF': 'AS', 'AM': 'AS', 'AZ': 'AS', 'BH': 'AS', 'BD': 'AS', 'BT': 'AS', 'BN': 'AS', 'KH': 'AS', 'CN': 'AS', 'CX': 'AS', 'CC': 'AS', 'IO': 'AS', 'GE': 'AS', 'HK': 'AS', 'IN': 'AS', 'ID': 'AS', 'IR': 'AS', 'IQ': 'AS', 'IL': 'AS', 'JP': 'AS', 'JO': 'AS', 'KZ': 'AS', 'KW': 'AS', 'KG': 'AS', 'LA': 'AS', 'LB': 'AS', 'MO': 'AS', 'MY': 'AS', 'MV': 'AS', 'MN': 'AS', 'MM': 'AS', 'NP': 'AS', 'KP': 'AS', 'OM': 'AS', 'PK': 'AS', 'PS': 'AS', 'PH': 'AS', 'QA': 'AS', 'SA': 'AS', 'SG': 'AS', 'KR': 'AS', 'LK': 'AS', 'SY': 'AS', 'TW': 'AS', 'TJ': 'AS', 'TH': 'AS', 'TR': 'AS', 'TM': 'AS', 'AE': 'AS', 'UZ': 'AS', 'VN': 'AS', 'YE': 'AS', 'AS': 'OTHER', 'AU': 'OTHER', 'NZ': 'OTHER', 'CK': 'OTHER', 'TL': 'OTHER', 'FM': 'OTHER', 'FJ': 'OTHER', 'PF': 'OTHER', 'GU': 'OTHER', 'KI': 'OTHER', 'MP': 'OTHER', 'MH': 'OTHER', 'UM': 'OTHER', 'NR': 'OTHER', 'NC': 'OTHER', 'NU': 'OTHER', 'NF': 'OTHER', 'PW': 'OTHER', 'PG': 'OTHER', 'WS': 'OTHER', 'SB': 'OTHER', 'TK': 'OTHER', 'TO': 'OTHER', 'TV': 'OTHER', 'VU': 'OTHER', 'WF': 'OTHER', 'AL': 'EU', 'AD': 'EU', 'AT': 'EU', 'BY': 'EU', 'BE': 'EU', 'BA': 'EU', 'BG': 'EU', 'HR': 'EU', 'CY': 'EU', 'CZ': 'EU', 'DK': 'EU', 'EE': 'EU', 'FO': 'EU', 'FI': 'EU', 'FR': 'EU', 'DE': 'EU', 'GI': 'EU', 'GR': 'EU', 'HU': 'EU', 'IS': 'EU', 'IE': 'EU', 'IM': 'EU', 'IT': 'EU', 'XK': 'EU', 'LV': 'EU', 'LI': 'EU', 'LT': 'EU', 'LU': 'EU', 'MK': 'EU', 'MT': 'EU', 'MD': 'EU', 'MC': 'EU', 'ME': 'EU', 'NL': 'EU', 'NO': 'EU', 'PL': 'EU', 'PT': 'EU', 'RO': 'EU', 'RU': 'EU', 'SM': 'EU', 'RS': 'EU', 'SK': 'EU', 'SI': 'EU', 'ES': 'EU', 'SE': 'EU', 'CH': 'EU', 'UA': 'EU', 'GB': 'EU', 'VA': 'EU', 'FX': 'EU', 'SJ': 'EU', 'AI': 'NA', 'AG': 'NA', 'AW': 'NA', 'BS': 'NA', 'BB': 'NA', 'BZ': 'NA', 'BM': 'NA', 'BQ': 'NA', 'VG': 'NA', 'CA': 'NA', 'KY': 'NA', 'CR': 'NA', 'CU': 'NA', 'CW': 'NA', 'DM': 'NA', 'DO': 'NA', 'SV': 'NA', 'GL': 'NA', 'GD': 'NA', 'GP': 'NA', 'GT': 'NA', 'HT': 'NA', 'HN': 'NA', 'JM': 'NA', 'MQ': 'NA', 'MX': 'NA', 'PM': 'NA', 'MS': 'NA', 'KN': 'NA', 'NI': 'NA', 'PA': 'NA', 'PR': 'NA', 'SX': 'NA', 'LC': 'NA', 'VC': 'NA', 'TT': 'NA', 'TC': 'NA', 'US': 'NA', 'VI': 'NA', 'AR': 'OTHER', 'BO': 'OTHER', 'BR': 'OTHER', 'CL': 'OTHER', 'CO': 'OTHER', 'EC': 'OTHER', 'FK': 'OTHER', 'GF': 'OTHER', 'GY': 'OTHER', 'PY': 'OTHER', 'PE': 'OTHER', 'SR': 'OTHER', 'UY': 'OTHER', 'VE': 'OTHER'}
 
 
 
 # load data
-with open('dataset/user_games_4.json', 'r') as f:
+with open('dataset/user_games_new55.json', 'r') as f:
     data = json.load(f)
 user_data = data['user_games']
 
@@ -98,6 +100,29 @@ for user in user_data:
 #     print(i)
 #     n += 1
 
+
+max_n = 0
+max = 0
+i = 1
+while i < len(datas[0]):
+    pca = PCA(n_components=i)
+    pca.fit(datas)
+    if max > 0.9:
+        break
+    elif np.sum(pca.explained_variance_ratio_) > max:
+        max_n = i
+        max = np.sum(pca.explained_variance_ratio_)
+    i += 1
+print(max_n)
+
+# pca
+# pca = PCA(n_components=25)
+# pca.fit(datas)
+# # datas = pca.transform(datas)
+# print(np.sum(pca.explained_variance_ratio_))
+# # print(pca.singular_values_)
+# print(pca.explained_variance_)
+
 # split train- and test dataset
 x = datas
 y = targets
@@ -106,12 +131,14 @@ x_train, x_test, y_train, y_test = tts(x, y, test_size=0.1)
 # learning
 # clf = svc()
 # n_estimators=300, learning_rate=0.8
+dt = time.time()
 clf = AdaBoostClassifier()
 clf.fit(x_train, y_train)
 y_pred = clf.predict(x_test)
+print(time.time() - dt)
 
 print(classification_report(y_test, y_pred))
-sns.heatmap(confusion_matrix(y_test, y_pred))
+# sns.heatmap(confusion_matrix(y_test, y_pred))
 #
 
 # atterbus
